@@ -26,7 +26,7 @@ A key is a component that can be used to encrypt or decrypt.
 The alphabet is a list of all possible characters in the original and encrypted message, including numbers, punctuation 
 marks, spaces, separate uppercase, and lowercase letters, etc.
 
- ###Caesar Cipher 
+ ### Caesar Cipher 
 The easiest and one of the most famous classical ciphers - the Caesar cipher is perfect for the role of an aperitif.
 The Caesar cipher belongs to the group of so-called monoalphabetic substitution ciphers. When using the ciphers of this 
 group, each character of the plain text is replaced by other symbol of the same alphabet fixed for a given key.
@@ -41,7 +41,7 @@ To open it, you need to replace each letter o f the ciphertext with a letter tha
 alphabet. If as a result of this it was not possible to obtain a readable message, then it is necessary to repeat the 
 action, but already shifting the letters two characters to the left. And so on, until the result is readable text.
 
- ###Caesar w/ permutation Cipher
+ ### Caesar w/ permutation Cipher
 
 This encryption system, along with the numeric key K, which specifies an offset, uses a keyword to change the order of 
 characters in the replacement alphabet.
@@ -67,7 +67,6 @@ Consider, as an example, the following table, which forms the key of the Playfai
 |   S   |   O   |   N   |   B   |   C   |
 |   D   |   F   |   G   |   I   |   K   |
 |   L   |   M   |   P   |   Q   |   R   |
-|   L   |   M   |   P   |   Q   |   R   |
 |   U   |   V   |   X   |   Y   |   Z   |
 
 Let's encrypt the 'WN' pair. The letter W is located in the first row and first column. And the letter N is in the 
@@ -83,8 +82,6 @@ the same plaintext letter can be encrypted into different characters. This encry
 frequency characteristics of the text and makes cryptanalysis difficult.
 
 The Vigenère cipher is a sequence of several Caesar ciphers with different keys.
-
-
 
 The first task in cryptanalysis of the Vigenère cipher is to find the length of the key used in encryption.
 
@@ -109,6 +106,41 @@ will be the same.
  
 Each file contains the code that implements a certain cipher. There are 2 main functions: encryption and decryption for 
 each of the ciphers mentioned and described above.
+
+### Classical Caesar Cipher
+
+The program id created to understand 3 types of actions: Encrypt and Decrypt. In lines 5-10 the data for running the 
+cipher are read by the code. The variable "end_program" is used to determine whether the en/de-coding is done or it 
+should go on. The encryption is implemented by substitution of each character, one by one, adding the key to the index 
+in the alphabet array created. The decryption is executed similarly, decreasing the index by the key. 
+
+### Caesar with Permutation Cipher 
+
+The lines 1-12 take the input that decides the process to be done, the text and key for the action. The methods Remove 
+and Insert are used for permutation the initial alphabet. We remove the letters that were used by the keyword and insert
+it to a new alphabet. Then the encryption/decryption is implemented according to the Classical Caesar algorithm. Finally, 
+the output is printed. 
+
+### Vigenere Cipher 
+
+The program id created to understand 3 types of actions: Encrypt, Decrypt and Exit. In the driver code the data for 
+running the cipher are read. The code is running until the process Exit is called, that means the user could keep
+manipulating his/her data in one cycle. The plain text is converted according to the key. The key is a word, that means 
+the basic keys in Caesar cipher by their index in alphabet. The digits are kept plain in both cases, they do not need any 
+manipulations in this cipher. There are 2 methods that describe the encryption and decryption algorithms. The counter 
+keeps the progress of the process. Each step uses the key, and effectuates the classical caesar cipher algorithm to 
+en/de-crypt the letter. When the process is done, the result is printed between 2 rows of stars, and the next decision 
+for process is given. 
+
+### Playfair Cipher
+
+The program id created to understand 3 types of actions: Encrypt, Decrypt and Exit. In the driver code (138-149) the 
+data for running the cipher are read. The code is running until the process Exit is called, that means the user could 
+keep manipulating his/her data in one cycle. The message is manipulated according to the algorithm described above. 
+There are 2 methods that are called in the driver code, Encrypt adn Decrypt. The table is 5x5 is created according to 
+the keyword (the characters should not repeat). then using matrix relations the pairs of message text are modified if 
+they correspond to the conditions of the cipher(pair is not of same letter, each letter has a pair, if not completed by
+a more rare character). When the process of EN/DE-cryption is finished the result is printed and a new choice is given.
 
 ## Conclusions / Screenshots / Results
 In this laboratory work, we studied the most known ciphers. But progress does not stand still. Now you can please
