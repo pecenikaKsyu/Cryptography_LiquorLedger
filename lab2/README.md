@@ -153,6 +153,30 @@ j = (j + 1 ) mod c
 Each file contains the code that implements a certain cipher. There are 2 main functions: encryption and decryption for 
 each of the ciphers mentioned and described above.
 
+### RC5 Block Cipher
+For the implementation, initially the initialization of data are needed, that is effectuated by the function __init__ .
+The most difficult part is to modify the key to our needs. The algorithm contains 3 steps, aling the key, extend it and 
+shuffle it.  This algorithm is implemented by the function _expand_key: 
+* align : _align_key
+* extend : _extend_key
+* shuffle : _mix
+
+The en/de-coding functions are the next described: _encrypt_block, encrypt_file and encrypt_str, 
+for encryption, and respectively for the decryption, _decrypt_block, decrypt_file and decrypt_str. 
+
+The driver code runs the cipher, gets the information, encrypts and decrypts the data. 
+
+### RC4 Stream Cipher 
+
+The tricky part in this algorithm is the key. The Key-Scheduling Algorithm is described by the function KSA. Pseudo 
+random generation algorithm for stream generation is described by the function PRGA, once the vector S is initialized, 
+the input key will not be used. In this step, for each S[i] algorithm swap it with another byte in S according to a 
+scheme dictated by the current configuration of S. After reaching S[255] the process continues, starting from S[0] 
+again. This algorithm is implemented by the _get_keystream_ function . 
+
+The encryption algorithm is based on XOR operation, that is described by the encrypt_logic function. To encrypt or 
+decrypt the given text called by the "encrypt" and "decrypt" functions.
+
 ## Conclusions / Screenshots / Results
 In this laboratory work, we studied block and stream ciphers. Their implementation is closely related to mathematical 
 concepts for encryption or decryption to be effectuated.  
