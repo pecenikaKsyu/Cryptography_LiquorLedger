@@ -128,7 +128,7 @@ def decrypt(msg_ciphertext, package):
 
  
  As a result:
- ![](https://github.com/pecenikaKsyu/Cryptography_LiquorLedger/blob/8057f157a90a81798f67422524d4a541d0c3d5cb/lab3/results.png)
+ ![](https://github.com/pecenikaKsyu/Cryptography_LiquorLedger/blob/650f7d080b8ab6dce70e52b7bd094fa47c0055c9/images/results.png)
 
 ## Conclusions / Screenshots / Results
 In this laboratory work, we studied asymmetric ciphers. There are two main problems with RSA today, one a consequence 
