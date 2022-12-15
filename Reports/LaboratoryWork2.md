@@ -155,27 +155,158 @@ each of the ciphers mentioned and described above.
 
 ### RC5 Block Cipher
 For the implementation, initially the initialization of data are needed, that is effectuated by the function __init__ .
+```python
+    def __init__(self, key):
+        self.mode = 'CBC'  # "ECB" or "CBC"
+        self.blocksize = 32
+        self.rounds = 12
+        self.iv = os.urandom(self.blocksize // 8)
+        self._key = key.encode('utf-8')
+```
+
 The most difficult part is to modify the key to our needs. The algorithm contains 3 steps, aling the key, extend it and 
 shuffle it.  This algorithm is implemented by the function _expand_key: 
 * align : _align_key
-* extend : _extend_key
-* shuffle : _mix
+```python
+    def _align_key(key, align_val):
+                while len(key) % (align_val):
+                    key += b'\x00'
+                L = []
+                for i in range(0, len(key), align_val):
+                    L.append(int.from_bytes(key[i:i + align_val], byteorder='little'))
+                return L
 
-The en/de-coding functions are the next described: _encrypt_block, encrypt_file and encrypt_str, 
-for encryption, and respectively for the decryption, _decrypt_block, decrypt_file and decrypt_str. 
+```
+* extend : _extend_key
+```python
+    def _extend_key(w, r):
+               P, Q = _const(w)
+               S = [P]
+               t = 2 * (r + 1)
+               for i in range(1, t):
+                   S.append((S[i - 1] + Q) % 2 ** w)
+               return S
+```
+* shuffle : _mix
+```python
+   def _mix(L, S, r, w, c):
+               t = 2 * (r + 1)
+               m = max(c, t)
+               A = B = i = j = 0
+               for k in range(3 * m):
+                   A = S[i] = RC5._shift_l(S[i] + A + B, 3, w)
+                   B = L[j] = RC5._shift_l(L[j] + A + B, A + B, w)
+                   i = (i + 1) % t
+                   j = (j + 1) % c
+               return S
+```
+
+The en/de-coding functions are the next described: _encrypt_block, encrypt_file and encrypt_str,
+for encryption,
+```python
+    def _encrypt_block(data, expanded_key, blocksize, rounds):
+        w = blocksize // 2
+        b = blocksize // 8
+        mod = 2 ** w
+        A = int.from_bytes(data[:b // 2], byteorder='little')
+        B = int.from_bytes(data[b // 2:], byteorder='little')
+        A = (A + expanded_key[0]) % mod
+        B = (B + expanded_key[1]) % mod
+        for i in range(1, rounds + 1):
+            A = (RC5._shift_l((A ^ B), B, w) + expanded_key[2 * i]) % mod
+            B = (RC5._shift_l((A ^ B), A, w) + expanded_key[2 * i + 1]) % mod
+        res = A.to_bytes(b // 2, byteorder='little') + B.to_bytes(b // 2, byteorder='little')
+        return res
+
+    def encrypt_file(self, infile, outfile):
+        w = self.blocksize // 2
+        b = self.blocksize // 8
+        if self.mode == 'CBC':
+            last_v = self.iv
+            outfile.write(last_v)
+        expanded_key = RC5._expand_key(self._key, w, self.rounds)
+        chunk = infile.read(b)
+        while chunk:
+            chunk = chunk.ljust(b, b'\x00')
+            if self.mode == 'CBC':
+                chunk = bytes([a ^ b for a, b in zip(last_v, chunk)])
+            encrypted_chunk = RC5._encrypt_block(chunk, expanded_key,
+                                                 self.blocksize,
+                                                 self.rounds)
+            outfile.write(encrypted_chunk)
+            last_v = encrypted_chunk
+            chunk = infile.read(b)
+            
+    def encrypt_str(self, input_str):
+        str_in = BytesIO()
+        str_in.write(input_str.encode('utf-8'))
+        str_in.seek(0)
+        str_out = BytesIO()
+        self.encrypt_file(str_in, str_out)
+        return base64.urlsafe_b64encode(str_out.getvalue()).decode("utf-8")
+```
+and respectively for the decryption, _decrypt_block, decrypt_file and decrypt_str. 
 
 The driver code runs the cipher, gets the information, encrypts and decrypts the data. 
 
 ### RC4 Stream Cipher 
 
-The tricky part in this algorithm is the key. The Key-Scheduling Algorithm is described by the function KSA. Pseudo 
-random generation algorithm for stream generation is described by the function PRGA, once the vector S is initialized, 
-the input key will not be used. In this step, for each S[i] algorithm swap it with another byte in S according to a 
+The tricky part in this algorithm is the key. The Key-Scheduling Algorithm is described by the function KSA.
+```python
+    def KSA(key):
+        key_length = len(key)
+        S = list(range(MOD))
+        j = 0
+        for i in range(MOD):
+            j = (j + S[i] + key[i % key_length]) % MOD
+            S[i], S[j] = S[j], S[i]  # swap values
+        return S
+```
+Pseudo random generation algorithm for stream generation is described by the function PRGA, once the vector S is 
+initialized, the input key will not be used. In this step, for each S[i] algorithm swap it with another byte in S according to a 
 scheme dictated by the current configuration of S. After reaching S[255] the process continues, starting from S[0] 
-again. This algorithm is implemented by the _get_keystream_ function . 
+again. 
+```python
+    def PRGA(S):
+        #Psudo Random Generation Algorithm
+        i = 0
+        j = 0
+        while True:
+            i = (i + 1) % MOD
+            j = (j + S[i]) % MOD
+            S[i], S[j] = S[j], S[i]  # swap values
+            K = S[(S[i] + S[j]) % MOD]
+            yield K
+```
+This algorithm is implemented by the _get_keystream_ function.
+```python
+    def get_keystream(key):
+        S = KSA(key)
+        return PRGA(S)
+```
 
-The encryption algorithm is based on XOR operation, that is described by the encrypt_logic function. To encrypt or 
-decrypt the given text called by the "encrypt" and "decrypt" functions.
+The encryption algorithm is based on XOR operation, that is described by the encrypt_logic function.
+```python
+    def encrypt_logic(key, text):
+        key = [ord(c) for c in key]
+        stream_key = get_keystream(key)
+        res = []
+        for c in text:
+            val = ("%02X" % (c ^ next(stream_key)))  # XOR and taking hex
+            res.append(val)
+        return ''.join(res)
+```
+To encrypt or decrypt the given text called by the "encrypt" and "decrypt" functions.
+```python
+    def encrypt(key, plain):
+        plain = [ord(c) for c in plain]
+        return encrypt_logic(key, plain)
+    
+    def decrypt(key, cipher):
+        cipher = codecs.decode(cipher, 'hex_codec')
+        res = encrypt_logic(key, cipher)
+        return codecs.decode(res, 'hex_codec').decode('utf-8')
+    ```
 
 ## Conclusions / Screenshots / Results
 In this laboratory work, we studied block and stream ciphers. Their implementation is closely related to mathematical 

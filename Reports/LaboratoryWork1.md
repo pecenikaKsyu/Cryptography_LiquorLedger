@@ -111,36 +111,185 @@ each of the ciphers mentioned and described above.
 
 The program id created to understand 3 types of actions: Encrypt and Decrypt. In lines 5-10 the data for running the 
 cipher are read by the code. The variable "end_program" is used to determine whether the en/de-coding is done or it 
-should go on. The encryption is implemented by substitution of each character, one by one, adding the key to the index 
-in the alphabet array created. The decryption is executed similarly, decreasing the index by the key. 
+should go on.
+
+The encryption is implemented by substitution of each character, one by one, adding the key to the index 
+in the alphabet array created. 
+```python
+        for i in range(len(MyText)):
+            if MyText[i] == ' ':
+                MyText[i] = ' '
+            else:
+                new_letter = alphabets.index(MyText[i]) + key
+                MyText[i] = alphabets[new_letter]
+        print(''.join(map(str, MyText)))
+        end_program = True
+```
+
+The decryption is executed similarly, decreasing the index by the key. 
+```python
+        for i in range(len(MyText)):
+            if MyText[i] == ' ':
+                MyText[i] = ' '
+            else:
+                new_letter = alphabets.index(MyText[i]) - key
+                MyText[i] = alphabets[new_letter]
+        print(''.join(map(str, MyText)))
+        end_program = True
+```
 
 ### Caesar with Permutation Cipher 
 
 The lines 1-12 take the input that decides the process to be done, the text and key for the action. The methods Remove 
-and Insert are used for permutation the initial alphabet. We remove the letters that were used by the keyword and insert
-it to a new alphabet. Then the encryption/decryption is implemented according to the Classical Caesar algorithm. Finally, 
-the output is printed. 
+and Insert are used for permutation the initial alphabet.
+```python
+def remove(alpha, string):
+    for symbol in string:
+        if symbol not in [chr(x) for x in range(65, 91)] or string.count(symbol) > 1:
+            string.remove(symbol)
+        if symbol in alpha: alpha.remove(symbol)
+    return alpha, string
+
+def insert(alpha_string):
+    for index, symbol in enumerate(alpha_string[1]):
+        alpha_string[0].insert((numberKey + index) % 26, symbol)
+    return alpha_string[0]
+```
+We remove the letters that were used by the keyword and insert it to a new alphabet. Then the encryption/decryption is
+implemented according to the Classical Caesar algorithm. Finally, the output is printed. 
+
+```python
+def encryptDecrypt(mode, message, key, final=""):
+    alpha = insert(remove(Alphabet, stringKey))
+    for symbol in message:
+        if mode == 'E':
+            final += alpha[(alpha.index(symbol) + key) % 26]
+        else:
+            final += alpha[(alpha.index(symbol) - key) % 26]
+    return final
+```
 
 ### Vigenere Cipher 
 
-The program id created to understand 3 types of actions: Encrypt, Decrypt and Exit. In the driver code the data for 
+The program is created to understand 3 types of actions: Encrypt, Decrypt and Exit. In the driver code the data for 
 running the cipher are read. The code is running until the process Exit is called, that means the user could keep
 manipulating his/her data in one cycle. The plain text is converted according to the key. The key is a word, that means 
 the basic keys in Caesar cipher by their index in alphabet. The digits are kept plain in both cases, they do not need any 
-manipulations in this cipher. There are 2 methods that describe the encryption and decryption algorithms. The counter 
-keeps the progress of the process. Each step uses the key, and effectuates the classical caesar cipher algorithm to 
-en/de-crypt the letter. When the process is done, the result is printed between 2 rows of stars, and the next decision 
-for process is given. 
+manipulations in this cipher. There are 2 methods that describe the encryption and decryption algorithms. 
+```python
+     def Encryption(plain, num_key):
+        count = 0
+        cipher = ''
+        for i in range(len(plain)):
+            char0 = plain[i]
+            char = char0.lower()
+            if char == " ":
+                cipher += ' '
+            elif char.isdigit():
+                cipher += char
+            elif char.isalpha():
+                if count < len(num_key):
+                    key1 = num_key[count]
+                    cipher += chr((ord(char) + key1 - 97) % 26 + 97)
+                    count += 1
+                if count == len(num_key):
+                    count = 0
+        return cipher
+
+    def Decryption(cipher, num_key):
+        count = 0
+        plain = ''
+        for i in range(len(cipher)):
+            char0 = cipher[i]
+            char = char0.lower()
+            if char == " ":
+                plain += ' '
+            elif char.isdigit():
+                plain += char
+            elif char.isalpha():
+                if count < len(num_key):
+                    key1 = num_key[count]
+                    plain += chr((ord(char) - key1 - 97) % 26 + 97)
+                    count += 1
+                if count == len(num_key):
+                    count = 0
+        return plain
+
+```
+The counter keeps the progress of the process. Each step uses the key, and effectuates the classical caesar cipher 
+algorithm to en/de-crypt the letter. When the process is done, the result is printed between 2 rows of stars, and the 
+next decision for process is given. 
 
 ### Playfair Cipher
 
-The program id created to understand 3 types of actions: Encrypt, Decrypt and Exit. In the driver code (138-149) the 
-data for running the cipher are read. The code is running until the process Exit is called, that means the user could 
-keep manipulating his/her data in one cycle. The message is manipulated according to the algorithm described above. 
-There are 2 methods that are called in the driver code, Encrypt adn Decrypt. The table is 5x5 is created according to 
-the keyword (the characters should not repeat). then using matrix relations the pairs of message text are modified if 
-they correspond to the conditions of the cipher(pair is not of same letter, each letter has a pair, if not completed by
-a more rare character). When the process of EN/DE-cryption is finished the result is printed and a new choice is given.
+The program is created to understand 3 types of actions: Encrypt, Decrypt and Exit. 
+```python
+while (True):
+    choice = int(input("\n\n********MENU********\n\n1.Encrypt\n2.Decrypt\n3.Exit\n\nEnter your choice : "))
+    if (choice == 1):
+        key = input("\nEnter the key : ")
+        encrypt(key)
+    elif (choice == 2):
+        key = input("\nEnter the key : ")
+        decrypt(key)
+    elif (choice == 3):
+        break
+```
+In the driver code (138-149) the data for running the cipher are read. The code is running until the process Exit is 
+called, that means the user could keep manipulating his/her data in one cycle. The message is manipulated according to 
+the algorithm described above.  
+There are 2 methods that are called in the driver code, Encrypt adn Decrypt.
+```python
+        for i in range(5):
+            for j in range(5):
+                if (matrix[i][j] == one):
+                    row1 = i
+                    col1 = j
+                elif (matrix[i][j] == two):
+                    row2 = i
+                    col2 = j
+        if (row1 == row2):
+            plain += matrix[row1][col1 - 1]
+            plain += matrix[row2][col2 - 1]
+        elif (col1 == col2):
+            plain += matrix[row1 - 1][col1]
+            plain += matrix[row2 - 1][col2]
+        else:
+            plain += matrix[row1][col2]
+            plain += matrix[row2][col1]
+        plainID += 1
+```
+The table is 5x5 is created according to the keyword (the characters should not repeat). 
+```python
+    for i in range(5):
+        l = []
+        for j in range(5):
+            if (keyID < keyLen):
+                l.append(key[keyID])
+                keyID += 1
+            elif (letterID < letters_length):
+                l.append(dup_letters[letterID])
+                letterID += 1
+        matrix.append(l)
+```
+Then using matrix relations the pairs of message text are modified if they correspond to the conditions of the 
+cipher(pair is not of same letter, each letter has a pair, if not completed by a more rare character, in our case 'x').
+```python
+    while (cipherId != len(modCipher)):
+        l = []
+        l.append(modCipher[cipherId])
+        cipherId += 1
+        if (cipherId < len(modCipher)):
+            if (modCipher[cipherId] == l[0]):
+                l.append('x')
+            else:
+                l.append(modCipher[cipherId])
+                cipherId += 1
+        cipherMx.append(l)
+    if (len(cipherMx[len(cipherMx) - 1]) == 1):
+        cipherMx[len(cipherMx) - 1].append('x')
+```
+When the process of EN/DE-cryption is finished the result is printed and a new choice is given.
 
 ## Conclusions / Screenshots / Results
 In this laboratory work, we studied the most known ciphers. But progress does not stand still. Now you can please

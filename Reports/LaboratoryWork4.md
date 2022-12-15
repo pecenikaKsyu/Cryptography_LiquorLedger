@@ -218,7 +218,7 @@ def verify(receivedHashed, message):
 
  
  As a result:
- ![](https://github.com/pecenikaKsyu/Cryptography_LiquorLedger/blob/4d5d204029d62eb3d08f3e2b1a82628a70454fa3/images/image.png)
+ ![](https://github.com/pecenikaKsyu/Cryptography_LiquorLedger/blob/71ee38c54d18d8530c9c5f302f9c97f8a97409ff/lab4/image.png)
 
 ## Conclusions / Screenshots / Results
 In this laboratory work, we studied hash functions. All functions that are included in this "family"(SHA-2), namely: 
